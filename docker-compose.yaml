@@ -4,8 +4,11 @@ services:
     build:
       context: ./app
       dockerfile: ./Dockerfile
+    environment:
+      - STRIPE_SK: ${STRIPE_SK_DEV}
+      - STRIPE_PK: ${STRIPE_PK_DEV}
     ports:
-      - '6000:3000'
+      - '3200:3000'
     volumes:
       - './app:/app'
 
