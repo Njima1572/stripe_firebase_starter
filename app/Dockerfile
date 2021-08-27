@@ -1,0 +1,8 @@
+FROM node:16.8.0
+EXPOSE 3000
+ENV PORT=3000
+
+WORKDIR /app
+
+ENTRYPOINT yarn dev --host --port $PORT
+
