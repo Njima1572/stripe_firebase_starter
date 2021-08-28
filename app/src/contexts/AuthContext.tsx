@@ -6,7 +6,34 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 
-export const AuthContext = createContext({});
+export interface IAuthContext {
+  user: User | null;
+  login:
+    | (({
+        email,
+        password,
+      }: {
+        email: string;
+        password: string;
+      }) => Promise<any>)
+    | (() => void);
+  signup:
+    | (({
+        email,
+        password,
+      }: {
+        email: string;
+        password: string;
+      }) => Promise<any>)
+    | (() => void);
+  signout: () => Promise<any> | void;
+}
+export const AuthContext = createContext<IAuthContext>({
+  user: null,
+  login: () => {},
+  signout: () => {},
+  signup: () => {},
+});
 
 export const AuthProvider = ({ children }: { children: React.FC }) => {
   const [user, setUser] = useState<User | null>(null);
