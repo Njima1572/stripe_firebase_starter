@@ -1,13 +1,17 @@
 import React, { createContext, useCallback, useState, useEffect } from "react";
-import { auth } from "../FIREBASE_CONFIG.js";
-import * as firebase from "firebase/app";
+import { auth } from "../FIREBASE_CONFIG";
+import {
+  User,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 
-export const AuthContext = createContext();
+export const AuthContext = createContext({});
 
 export const AuthProvider = ({ children }: { children: React.FC }) => {
-  const [user, setUser] = useState<firebase.User>({});
+  const [user, setUser] = useState<User | null>(null);
 
-  const onAuthStateChanged = useCallback((user: firebase.User) => {
+  const onAuthStateChanged = useCallback((user: User | null) => {
     console.log("Changed Auth State");
     console.log(user);
     setUser(user);
@@ -17,10 +21,16 @@ export const AuthProvider = ({ children }: { children: React.FC }) => {
     return subscriber;
   }, [onAuthStateChanged]);
   const login = ({ email, password }: { email: string; password: string }) => {
-    auth.loginWithEmailAndPassword({ email, password });
+    return signInWithEmailAndPassword(auth, email, password);
+  };
+  const signup = ({ email, password }: { email: string; password: string }) => {
+    return createUserWithEmailAndPassword(auth, email, password);
+  };
+  const signout = () => {
+    return auth.signOut();
   };
   return (
-    <AuthContext.Provider values={{ login: login, user }}>
+    <AuthContext.Provider value={{ login: login, user, signup, signout }}>
       {children}
     </AuthContext.Provider>
   );
