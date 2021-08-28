@@ -1,6 +1,7 @@
 import * as firebaseAdmin from "firebase-admin";
 import * as functions from "firebase-functions";
 import stripe from "./stripe/config";
+firebaseAdmin.initializeApp();
 
 const auth = firebaseAdmin.auth();
 // const db = firebaseAdmin.firestore();
