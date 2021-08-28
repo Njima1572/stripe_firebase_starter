@@ -1,10 +1,7 @@
 import React, { createContext, useCallback, useState, useEffect } from "react";
 import { auth } from "../FIREBASE_CONFIG";
-import {
-  User,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
+import { signup } from "../lib/functions";
+import { User, signInWithEmailAndPassword } from "firebase/auth";
 
 export interface IAuthContext {
   user: User | null;
@@ -49,9 +46,6 @@ export const AuthProvider = ({ children }: { children: React.FC }) => {
   }, [onAuthStateChanged]);
   const login = ({ email, password }: { email: string; password: string }) => {
     return signInWithEmailAndPassword(auth, email, password);
-  };
-  const signup = ({ email, password }: { email: string; password: string }) => {
-    return createUserWithEmailAndPassword(auth, email, password);
   };
   const signout = () => {
     return auth.signOut();
