@@ -4,8 +4,6 @@ EXPOSE 9099
 EXPOSE 5001
 EXPOSE 8080
 
-ENV SAVE_DIR emulator_data
-
 RUN apt update && apt install default-jdk -y
 
 RUN npm i -g firebase-tools
@@ -14,4 +12,5 @@ WORKDIR /firebase
 # To replace with STRIPE_SK
 # RUN sed -i "s/REPLACE_WITH_STRIPE_SK/$STRIPE_SK/" /firebase/.runtimeconfig.json
 
-ENTRYPOINT firebase emulators:start --import=$SAVE_DIR --export-on-exit=$SAVE_DIR & cd /firebase/functions && yarn dev
+# As of now, saving/loading part is not working
+ENTRYPOINT firebase emulators:start --import=emulator_data --export-on-exit=emulator_data & cd /firebase/functions && yarn dev
