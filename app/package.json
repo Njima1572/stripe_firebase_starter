@@ -1,20 +1,20 @@
 {
-  "name": "stripe-firebase-starter",
+  "name": "stripe-firebase-starter-react",
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build",
+    "build": "tsc && vite build",
     "serve": "vite preview"
   },
   "dependencies": {
-    "firebase": "^9.0.0",
-    "vue": "^3.2.6"
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^1.6.0",
-    "@vue/compiler-sfc": "^3.0.5",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "@vitejs/plugin-react-refresh": "^1.3.1",
     "typescript": "^4.3.2",
-    "vite": "^2.5.1",
-    "vue-tsc": "^0.2.2"
+    "vite": "^2.5.1"
   }
 }
