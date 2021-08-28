@@ -1,6 +1,6 @@
 {
   "projects": {
-    "default": "jimatest-cc6cb"
+    "default": "firebase-emulator"
   },
   "targets": {}
 }

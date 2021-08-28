@@ -12,4 +12,4 @@ RUN npm i -g firebase-tools
 
 WORKDIR /firebase
 
-ENTRYPOINT firebase emulators:start --import=$SAVE_DIR --export-on-exit=$SAVE_DIR & cd /firebase/functions && yarn watch
+ENTRYPOINT firebase emulators:start --import=$SAVE_DIR --export-on-exit=$SAVE_DIR & cd /firebase/functions && yarn dev

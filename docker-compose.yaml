@@ -18,10 +18,9 @@ services:
       dockerfile: ./Dockerfile.firebase
     ports:
       - '4000:4000'
-    expose:
-      - '9099'
-      - '5001'
-      - '8080'
+      - '5001:5001'
+      - '9099:9099'
+      - '8080:8080'
     volumes:
       - './firebase:/firebase'
       
