@@ -3,7 +3,7 @@ import * as functions from "firebase-functions";
 import stripe from "./stripe/config";
 
 const auth = firebaseAdmin.auth();
-const db = firebaseAdmin.firestore();
+// const db = firebaseAdmin.firestore();
 
 export const test = functions.https.onCall((_data, _context) => {
   functions.logger.info("Hello logs!", { structuredData: true });

@@ -11,6 +11,7 @@ RUN apt update && apt install default-jdk -y
 RUN npm i -g firebase-tools
 
 WORKDIR /firebase
-RUN sed -i "s/REPLACE_WITH_STRIPE_SK/${STRIPE_SK}" /firebase/.runtimeconfig.json
+# To replace with STRIPE_SK
+# RUN sed -i "s/REPLACE_WITH_STRIPE_SK/$STRIPE_SK/" /firebase/.runtimeconfig.json
 
 ENTRYPOINT firebase emulators:start --import=$SAVE_DIR --export-on-exit=$SAVE_DIR & cd /firebase/functions && yarn dev
