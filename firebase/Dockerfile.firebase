@@ -1,0 +1,15 @@
+FROM node:14
+EXPOSE 4000
+EXPOSE 9099
+EXPOSE 5001
+EXPOSE 8080
+
+ENV SAVE_DIR emulator_data
+
+RUN apt update && apt install default-jdk -y
+
+RUN npm i -g firebase-tools
+
+WORKDIR /firebase
+
+ENTRYPOINT firebase emulators:start --import=$SAVE_DIR --export-on-exit=$SAVE_DIR & cd /firebase/functions && yarn dev

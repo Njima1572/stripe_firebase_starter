@@ -1,0 +1,10 @@
+FROM node:16.8.0
+EXPOSE 5000
+
+COPY ./ /app
+WORKDIR /app
+
+RUN yarn && yarn build
+
+ENTRYPOINT ["yarn", "serve", "--host"]
+
