@@ -1,18 +1,16 @@
 import React, { useState, useContext, useEffect } from "react";
 import { StripeContext } from "../contexts/StripeContext";
-interface Product {
-  id: string;
-}
-interface Price {
-  id: string;
-  product: string;
-  currency: string;
-  unit_amount: number;
-  recurring: {
-    interval: "month" | "year";
-    interval_count: number;
-  };
-}
+import StripePrice, { Product, Price } from "../components/StripeItem";
+import StripeSubscription, {
+  Subscription,
+} from "../components/StripeSubscription";
+import StripeCard, { Wallet } from "../components/StripeCard";
+import {
+  list_payment_methods,
+  start_subscription,
+  list_subscriptions,
+  create_billing_portal,
+} from "../lib/functions.ts";
 
 const StripePage = () => {
   const { stripeProducts, stripePrices } = useContext<{
@@ -20,12 +18,38 @@ const StripePage = () => {
     stripeProducts: Product[];
   }>(StripeContext);
 
+  const [paymentMethods, setPaymentMethods] = useState<Wallet[]>([]);
+  const [
+    selectedPaymentMethod,
+    setSelectedPaymentMethod,
+  ] = useState<Wallet | null>(null);
+
+  const [currentSubscriptions, setCurrentSubscriptions] = useState<
+    Subscription[]
+  >([]);
+
   const [group, setGroup] = useState<any>({});
 
+  const handleSubscribe = (price_id: string) => async () => {
+    if (selectedPaymentMethod) {
+      let { data } = await start_subscription({
+        price_id: price_id,
+        payment_method_id: selectedPaymentMethod.id,
+      });
+      console.table(data, ["Value"]);
+    }
+  };
   useEffect(() => {
+    list_subscriptions().then(
+      ({ data }: { data: { data: Subscription[] } }) => {
+        setCurrentSubscriptions(data.data);
+      }
+    );
+    list_payment_methods().then(({ data }: { data: { data: Wallet[] } }) => {
+      setPaymentMethods(data.data);
+    });
     let tmp: any = {};
     stripePrices.forEach((priceItem: Price) => {
-      console.table(priceItem, ["Value"]);
       if (priceItem.product in tmp) {
         tmp[priceItem.product] = [...tmp[priceItem.product], priceItem];
       } else {
@@ -37,25 +61,42 @@ const StripePage = () => {
 
   return (
     <>
-      {Object.keys(group).map((product) => {
+      {paymentMethods.map((paymentMethod) => {
+        return (
+          <StripeCard
+            paymentMethod={paymentMethod}
+            handleSelect={setSelectedPaymentMethod}
+          />
+        );
+      })}
+      <div>{selectedPaymentMethod?.id}</div>
+      {stripeProducts.map((product) => {
         return (
           <div>
-            <div>{product}</div>
-            {group[product].map((price: Price) => {
+            <div>{product.name}</div>
+            {group[product.id].map((price: Price) => {
               return (
-                <div>
-                  {price.currency}
-                  {price.unit_amount} per{" "}
-                  {price.recurring.interval_count > 1
-                    ? price.recurring.interval_count
-                    : ""}
-                  {price.recurring.interval}
-                </div>
+                <StripePrice
+                  price={price}
+                  handleSubscribe={handleSubscribe(price.id)}
+                />
               );
             })}
           </div>
         );
       })}
+      {currentSubscriptions.map((subscription) => {
+        return <StripeSubscription subscription={subscription} />;
+      })}
+      <button
+        onClick={() =>
+          create_billing_portal().then(({ data }) => {
+            window.location.assign(data.url);
+          })
+        }
+      >
+        Create Billing Portal
+      </button>
     </>
   );
 };

@@ -14,6 +14,9 @@ const Navbar = () => (
       <li>
         <Link to="/stripe">Stripe</Link>
       </li>
+      <li>
+        <Link to="/payment">Payment</Link>
+      </li>
     </ul>
   </div>
 );

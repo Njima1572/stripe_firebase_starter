@@ -6,6 +6,7 @@ import { Navbar } from "./components";
 import Home from "./pages/HomePage";
 import Login from "./pages/LoginPage";
 import Stripe from "./pages/StripePage";
+import Payment from "./pages/SetupPaymentPage";
 import "./App.css";
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
                 <Route component={Home} path="/" exact />
                 <Route component={Login} path="/login" exact />
                 <Route component={Stripe} path="/stripe" exact />
+                <Route component={Payment} path="/payment" exact />
               </Switch>
             </>
           </StripeProvider>

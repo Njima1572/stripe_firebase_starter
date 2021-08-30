@@ -4,7 +4,10 @@ import { get_price, get_product } from "../lib/functions";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PK);
+// const stripePromise = loadStripe(import.meta.env.STRIPE_PK | "");
+const stripePromise = loadStripe(
+  "pk_test_51J6T0iGiq91P5YJOPcxM9SEiFhuYHJPvApALysLWOhpJiMDYeIvGmkIjYaghF5xq0VnW5g8zfSnfhlG9DsQLE68D00cccQD4kS"
+);
 export const StripeContext = createContext({});
 
 export const StripeProvider = ({ children }) => {

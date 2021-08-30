@@ -47,6 +47,51 @@ export const get_user_data = functions.https.onCall(
   }
 );
 
+// ========= Payment Methods Begin ========
+export const attach_payment_method = functions.https.onCall(
+  async (
+    data: { payment_method_id: string },
+    context: functions.https.CallableContext
+  ) => {
+    if (context.auth) {
+      return stripe.paymentMethods.attach(data.payment_method_id, {
+        customer: context.auth.uid,
+      });
+    }
+    return {};
+  }
+);
+
+export const list_payment_methods = functions.https.onCall(
+  async (_data, context: functions.https.CallableContext) => {
+    if (context.auth) {
+      return stripe.paymentMethods.list({
+        customer: context.auth.uid,
+        type: "card",
+      });
+    }
+    return [];
+  }
+);
+
+export const set_default_payment_method = functions.https.onCall(
+  async (
+    data: { payment_method_id: string },
+    context: functions.https.CallableContext
+  ) => {
+    if (context.auth) {
+      return stripe.customers.update(context.auth.uid, {
+        invoice_settings: {
+          default_payment_method: data.payment_method_id,
+        },
+      });
+    }
+    return {};
+  }
+);
+// ========= Payment Methods End ========
+
+// ========= Products Start ========
 export const get_price = functions.https.onCall(
   async (price_id: string, context: functions.https.CallableContext) => {
     // First create customer with Stripe
@@ -62,6 +107,87 @@ export const get_product = functions.https.onCall(
     // First create customer with Stripe
     if (context.auth) {
       return await stripe.products.retrieve(product_id);
+    }
+    return {};
+  }
+);
+// ========= Products End  ==========
+
+// ========= Subscriptions Start ===========
+export const get_subscription = functions.https.onCall(
+  async (subscription_id: string, context: functions.https.CallableContext) => {
+    if (context.auth) {
+      return await stripe.subscriptions.retrieve(subscription_id);
+    }
+    return {};
+  }
+);
+
+export const list_subscriptions = functions.https.onCall(
+  async (_data: any, context: functions.https.CallableContext) => {
+    if (context.auth) {
+      return await stripe.subscriptions.list({ customer: context.auth.uid });
+    }
+    return {};
+  }
+);
+export const start_subscription = functions.https.onCall(
+  async (
+    data: { price_id: string; payment_method_id: string },
+    context: functions.https.CallableContext
+  ) => {
+    if (context.auth) {
+      return await stripe.subscriptions.create({
+        customer: context.auth.uid,
+        items: [{ price: data.price_id }],
+        default_payment_method: data.payment_method_id,
+      });
+    }
+    return {};
+  }
+);
+
+export const cancel_subscription = functions.https.onCall(
+  async (subscription_id: string, context: functions.https.CallableContext) => {
+    if (context.auth) {
+      return await stripe.subscriptions.del(subscription_id);
+    }
+    return {};
+  }
+);
+
+export const update_subscription_payment_source = functions.https.onCall(
+  async (
+    data: { subscription_id: string; payment_method_id: string },
+    context: functions.https.CallableContext
+  ) => {
+    if (context.auth) {
+      return await stripe.subscriptions.update(data.subscription_id, {
+        default_payment_method: data.payment_method_id,
+      });
+    }
+    return {};
+  }
+);
+
+export const get_invoice = functions.https.onCall(
+  async (invoice_id: string, context: functions.https.CallableContext) => {
+    if (context.auth) {
+      return await stripe.invoices.retrieve(invoice_id);
+    }
+    return {};
+  }
+);
+
+// ========= Subscriptions End ===========
+
+export const create_billing_portal = functions.https.onCall(
+  async (_data: any, context: functions.https.CallableContext) => {
+    if (context.auth) {
+      return await stripe.billingPortal.sessions.create({
+        customer: context.auth.uid,
+        return_url: "http://localhost:3200",
+      });
     }
     return {};
   }
