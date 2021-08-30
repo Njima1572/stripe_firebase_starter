@@ -1,5 +1,6 @@
 import * as firebaseAdmin from "firebase-admin";
 import * as functions from "firebase-functions";
+import Stripe from "stripe";
 import stripe from "./stripe/config";
 firebaseAdmin.initializeApp();
 
@@ -102,11 +103,25 @@ export const get_price = functions.https.onCall(
   }
 );
 
+export const list_prices = functions.https.onCall(
+  async (
+    data: Stripe.PriceListParams,
+    context: functions.https.CallableContext
+  ) => {
+    if (context.auth) {
+      return stripe.prices.list(data);
+    }
+    return {};
+  }
+);
+
 export const get_product = functions.https.onCall(
   async (product_id: string, context: functions.https.CallableContext) => {
     // First create customer with Stripe
     if (context.auth) {
-      return await stripe.products.retrieve(product_id);
+      let { data } = await stripe.prices.list({ product: product_id });
+      let product = await stripe.products.retrieve(product_id);
+      return { ...product, prices: data };
     }
     return {};
   }
@@ -174,6 +189,20 @@ export const get_invoice = functions.https.onCall(
   async (invoice_id: string, context: functions.https.CallableContext) => {
     if (context.auth) {
       return await stripe.invoices.retrieve(invoice_id);
+    }
+    return {};
+  }
+);
+
+export const change_subscription_plan = functions.https.onCall(
+  async (
+    data: { subscription_id: string; new_price_items: any[] },
+    context: functions.https.CallableContext
+  ) => {
+    if (context.auth) {
+      return await stripe.subscriptions.update(data.subscription_id, {
+        items: data.new_price_items,
+      });
     }
     return {};
   }

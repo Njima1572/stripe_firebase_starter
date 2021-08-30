@@ -7,6 +7,7 @@ import Home from "./pages/HomePage";
 import Login from "./pages/LoginPage";
 import Stripe from "./pages/StripePage";
 import Payment from "./pages/SetupPaymentPage";
+import Subscription from "./pages/SubscriptionPage";
 import "./App.css";
 
 function App() {
@@ -22,6 +23,11 @@ function App() {
                 <Route component={Login} path="/login" exact />
                 <Route component={Stripe} path="/stripe" exact />
                 <Route component={Payment} path="/payment" exact />
+                <Route
+                  component={Subscription}
+                  path="/subscriptions/:id"
+                  exact
+                />
               </Switch>
             </>
           </StripeProvider>

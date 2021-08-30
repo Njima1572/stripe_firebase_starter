@@ -26,9 +26,11 @@ const Wrapper = styled.div`
 const StripeCard = ({
   paymentMethod,
   handleSelect,
+  currentPaymentMethod = "",
 }: {
   paymentMethod: Wallet;
   handleSelect: (arg0: Wallet) => void;
+  currentPaymentMethod?: string;
 }) => {
   return (
     <Wrapper>
@@ -37,7 +39,12 @@ const StripeCard = ({
       <div>
         {paymentMethod.card.exp_month}/{paymentMethod.card.exp_year}
       </div>
-      <button onClick={() => handleSelect(paymentMethod)}>Select</button>
+      <button
+        disabled={currentPaymentMethod === paymentMethod.id}
+        onClick={() => handleSelect(paymentMethod)}
+      >
+        Select
+      </button>
     </Wrapper>
   );
 };

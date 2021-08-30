@@ -13,7 +13,6 @@ const Wrapper = styled.div`
 export interface Product {
   id: string;
   name: string;
-  prices: Price[];
 }
 
 export interface Price {
@@ -30,7 +29,6 @@ export interface Price {
 const StripePrice = ({
   price,
   handleSubscribe,
-  currentPrice,
 }: {
   price: {
     id: string;
@@ -39,7 +37,6 @@ const StripePrice = ({
     recurring: { interval_count: number; interval: string };
   };
   handleSubscribe: () => void;
-  currentPrice?: string;
 }) => {
   return (
     <Wrapper>
@@ -54,12 +51,7 @@ const StripePrice = ({
           : ""}
         {price.recurring.interval}
       </div>
-      <button
-        disabled={!!(currentPrice && currentPrice === price.id)}
-        onClick={() => handleSubscribe()}
-      >
-        Subscribe
-      </button>
+      <button onClick={() => handleSubscribe()}>Subscribe</button>
     </Wrapper>
   );
 };

@@ -1,42 +1,40 @@
 import React, { useState, createContext, useEffect } from "react";
-import { products, prices } from "../constants/stripe_items";
-import { get_price, get_product } from "../lib/functions";
+import { productIds } from "../constants/stripe_items";
+import { get_product } from "../lib/functions";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
+import { Product } from "../components/StripeItem";
 
-// const stripePromise = loadStripe(import.meta.env.STRIPE_PK | "");
-const stripePromise = loadStripe(
-  "pk_test_51J6T0iGiq91P5YJOPcxM9SEiFhuYHJPvApALysLWOhpJiMDYeIvGmkIjYaghF5xq0VnW5g8zfSnfhlG9DsQLE68D00cccQD4kS"
-);
-export const StripeContext = createContext({});
+const stripePromise = loadStripe(import.meta.env.STRIPE_PK | "");
 
-export const StripeProvider = ({ children }) => {
-  const [stripePrices, setStripePrices] = useState([]);
-  const [stripeProducts, setStripeProducts] = useState([]);
+export interface IStripeContext {
+  stripePromise: Promise<any>;
+  products: Product[];
+}
+export const StripeContext = createContext<IStripeContext>({
+  stripePromise: new Promise(() => {}),
+  products: [],
+});
+
+export const StripeProvider = ({ children }: { children: React.FC }) => {
+  const [products, setProducts] = useState<Product[] | null>(null);
   useEffect(() => {
     const setupItems = async () => {
-      let pricePromises = prices.map(async (price) => {
-        let { data } = await get_price(price);
-        return data;
+      let productPromises = productIds.map(async (product: string) => {
+        let productItem: { data: Product } = (await get_product(product)) as {
+          data: Product;
+        };
+        return productItem.data;
       });
-      let productPromises = products.map(async (product) => {
-        let { data } = await get_product(product);
-        return data;
-      });
-      Promise.all(pricePromises).then((priceValues) => {
-        setStripePrices(priceValues);
-      });
-      Promise.all(productPromises).then((productValues) => {
-        setStripeProducts(productValues);
+      Promise.all(productPromises).then((productValues: Product[]) => {
+        setProducts(productValues);
       });
     };
     setupItems();
   }, []);
   return (
     <Elements stripe={stripePromise}>
-      <StripeContext.Provider
-        value={{ stripePrices, stripeProducts, stripePromise }}
-      >
+      <StripeContext.Provider value={{ stripePromise, products }}>
         {children}
       </StripeContext.Provider>
     </Elements>

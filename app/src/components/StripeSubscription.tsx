@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { useHistory } from "react-router-dom";
 import { Price } from "./StripeItem";
 import { cancel_subscription } from "../lib/functions";
 
@@ -38,6 +39,7 @@ const StripeSubscription = ({
 }: {
   subscription: Subscription;
 }) => {
+  const history = useHistory();
   const handleCancelSubscription = () => {
     cancel_subscription(subscription.id);
   };
@@ -53,6 +55,9 @@ const StripeSubscription = ({
         {new Date(subscription.current_period_end * 1000).toLocaleString()}
       </div>
       <div>{subscription.status}</div>
+      <button onClick={() => history.push(`/subscriptions/${subscription.id}`)}>
+        Detail
+      </button>
       <button onClick={() => handleCancelSubscription()}>Cancel</button>
     </Wrapper>
   );

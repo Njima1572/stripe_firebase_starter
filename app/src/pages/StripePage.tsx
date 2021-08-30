@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { StripeContext } from "../contexts/StripeContext";
+import { StripeContext, IStripeContext } from "../contexts/StripeContext";
 import StripePrice, { Product, Price } from "../components/StripeItem";
 import StripeSubscription, {
   Subscription,
@@ -10,13 +10,10 @@ import {
   start_subscription,
   list_subscriptions,
   create_billing_portal,
-} from "../lib/functions.ts";
+} from "../lib/functions";
 
 const StripePage = () => {
-  const { stripeProducts, stripePrices } = useContext<{
-    stripePrices: Price[];
-    stripeProducts: Product[];
-  }>(StripeContext);
+  const { products } = useContext<IStripeContext>(StripeContext);
 
   const [paymentMethods, setPaymentMethods] = useState<Wallet[]>([]);
   const [
@@ -27,8 +24,6 @@ const StripePage = () => {
   const [currentSubscriptions, setCurrentSubscriptions] = useState<
     Subscription[]
   >([]);
-
-  const [group, setGroup] = useState<any>({});
 
   const handleSubscribe = (price_id: string) => async () => {
     if (selectedPaymentMethod) {
@@ -43,21 +38,13 @@ const StripePage = () => {
     list_subscriptions().then(
       ({ data }: { data: { data: Subscription[] } }) => {
         setCurrentSubscriptions(data.data);
+        console.table(products, ["Values"]);
       }
     );
     list_payment_methods().then(({ data }: { data: { data: Wallet[] } }) => {
       setPaymentMethods(data.data);
     });
-    let tmp: any = {};
-    stripePrices.forEach((priceItem: Price) => {
-      if (priceItem.product in tmp) {
-        tmp[priceItem.product] = [...tmp[priceItem.product], priceItem];
-      } else {
-        tmp[priceItem.product] = [priceItem];
-      }
-    });
-    setGroup(tmp);
-  }, [stripeProducts, stripePrices]);
+  }, []);
 
   return (
     <>
@@ -70,21 +57,24 @@ const StripePage = () => {
         );
       })}
       <div>{selectedPaymentMethod?.id}</div>
-      {stripeProducts.map((product) => {
-        return (
-          <div>
-            <div>{product.name}</div>
-            {group[product.id].map((price: Price) => {
-              return (
-                <StripePrice
-                  price={price}
-                  handleSubscribe={handleSubscribe(price.id)}
-                />
-              );
-            })}
-          </div>
-        );
-      })}
+      {products &&
+        products.map((product: Product) => {
+          console.table(product);
+          return (
+            <div>
+              <div>{product.id}</div>
+              {products &&
+                product?.prices.map((price: Price) => {
+                  return (
+                    <StripePrice
+                      price={price}
+                      handleSubscribe={handleSubscribe(price.id)}
+                    />
+                  );
+                })}
+            </div>
+          );
+        })}
       {currentSubscriptions.map((subscription) => {
         return <StripeSubscription subscription={subscription} />;
       })}
