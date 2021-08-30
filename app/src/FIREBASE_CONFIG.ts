@@ -30,6 +30,7 @@ connectAuthEmulator(auth, "http://localhost:9099");
 const db = getFirestore();
 connectFirestoreEmulator(db, "localhost", 8080);
 
-const functions = (function_name) => httpsCallable(allFunctions, function_name);
+const functions = <T, S>(function_name: string) =>
+  httpsCallable<T, S>(allFunctions, function_name);
 
 export { auth, db, functions };

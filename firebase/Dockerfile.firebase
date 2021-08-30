@@ -13,4 +13,4 @@ WORKDIR /firebase
 # RUN sed -i "s/REPLACE_WITH_STRIPE_SK/$STRIPE_SK/" /firebase/.runtimeconfig.json
 
 # As of now, saving/loading part is not working
-ENTRYPOINT firebase emulators:start --import=emulator_data --export-on-exit=emulator_data & cd /firebase/functions && yarn dev
+ENTRYPOINT firebase emulators:start --import=./emulator_data --export-on-exit & cd /firebase/functions && yarn dev

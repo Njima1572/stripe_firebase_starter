@@ -1,8 +1,13 @@
 import React from "react";
 import { AuthProvider } from "./contexts/AuthContext";
+import { StripeProvider } from "./contexts/StripeContext";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { Navbar } from "./components";
 import Home from "./pages/HomePage";
 import Login from "./pages/LoginPage";
+import Stripe from "./pages/StripePage";
+import Payment from "./pages/SetupPaymentPage";
+import Subscription from "./pages/SubscriptionPage";
 import "./App.css";
 
 function App() {
@@ -10,10 +15,22 @@ function App() {
     <div className="App">
       <Router>
         <AuthProvider>
-          <Switch>
-            <Route component={Home} path="/" exact/>
-            <Route component={Login} path="/login" exact/>
-          </Switch>
+          <StripeProvider>
+            <>
+              <Navbar />
+              <Switch>
+                <Route component={Home} path="/" exact />
+                <Route component={Login} path="/login" exact />
+                <Route component={Stripe} path="/stripe" exact />
+                <Route component={Payment} path="/payment" exact />
+                <Route
+                  component={Subscription}
+                  path="/subscriptions/:id"
+                  exact
+                />
+              </Switch>
+            </>
+          </StripeProvider>
         </AuthProvider>
       </Router>
     </div>
