@@ -23,4 +23,5 @@ services:
       - '8080:8080'
     volumes:
       - './firebase:/firebase'
+      - './emulator_data:/firebase/emulator_data'
       
