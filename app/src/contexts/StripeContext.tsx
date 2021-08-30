@@ -1,15 +1,15 @@
-import React, { useState, createContext, useEffect } from "react";
+import React, { useState, createContext, useEffect, useMemo } from "react";
 import { productIds } from "../constants/stripe_items";
 import { get_product } from "../lib/functions";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
-import { Product } from "../components/StripeItem";
+import { Product } from "../types/stripe";
 
 const stripePromise = loadStripe(import.meta.env.STRIPE_PK | "");
 
 export interface IStripeContext {
   stripePromise: Promise<any>;
-  products: Product[];
+  products: Product[] | null;
 }
 export const StripeContext = createContext<IStripeContext>({
   stripePromise: new Promise(() => {}),
@@ -32,11 +32,18 @@ export const StripeProvider = ({ children }: { children: React.FC }) => {
     };
     setupItems();
   }, []);
+
+  const value = useMemo(
+    () => ({
+      stripePromise,
+      products,
+    }),
+    [products]
+  );
+
   return (
     <Elements stripe={stripePromise}>
-      <StripeContext.Provider value={{ stripePromise, products }}>
-        {children}
-      </StripeContext.Provider>
+      <StripeContext.Provider value={value}>{children}</StripeContext.Provider>
     </Elements>
   );
 };
