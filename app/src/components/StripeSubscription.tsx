@@ -1,38 +1,8 @@
 import React from "react";
-import styled from "styled-components";
+import { Wrapper } from "./";
 import { useHistory } from "react-router-dom";
-import { Price } from "./StripeItem";
+import { Subscription } from "../types/stripe";
 import { cancel_subscription } from "../lib/functions";
-
-const Wrapper = styled.div`
-  width: 100%;
-  height: 100px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
-  align-items: center;
-  border: 1px solid black;
-`;
-
-enum SubscriptionStatus {
-  active = "active",
-  incomplete = "incomplete",
-  incomplete_expired = "incomplete_expired",
-  trialing = "trialing",
-  past_due = "past_due",
-  canceled = "canceled",
-  unpaid = "unpaid",
-}
-
-export interface Subscription {
-  id: string;
-  plan: Price;
-  current_period_end: number;
-  current_period_start: number;
-  default_payment_method: string;
-  latest_invoice: string;
-  status: SubscriptionStatus;
-}
 
 const StripeSubscription = ({
   subscription,
