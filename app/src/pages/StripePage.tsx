@@ -14,7 +14,6 @@ import {
 
 const StripePage = () => {
   const { products } = useContext<IStripeContext>(StripeContext);
-
   const [paymentMethods, setPaymentMethods] = useState<Wallet[]>([]);
   const [
     selectedPaymentMethod,
@@ -35,14 +34,12 @@ const StripePage = () => {
     }
   };
   useEffect(() => {
-    list_subscriptions().then(
-      ({ data }: { data: { data: Subscription[] } }) => {
-        setCurrentSubscriptions(data.data);
-        console.table(products, ["Values"]);
-      }
-    );
-    list_payment_methods().then(({ data }: { data: { data: Wallet[] } }) => {
-      setPaymentMethods(data.data);
+    list_subscriptions().then(({ data }: { data: Subscription[] }) => {
+      setCurrentSubscriptions(data);
+      console.table(products, ["Values"]);
+    });
+    list_payment_methods().then(({ data }: { data: Wallet[] }) => {
+      setPaymentMethods(data);
     });
   }, []);
 

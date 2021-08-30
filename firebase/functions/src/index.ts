@@ -66,10 +66,11 @@ export const attach_payment_method = functions.https.onCall(
 export const list_payment_methods = functions.https.onCall(
   async (_data, context: functions.https.CallableContext) => {
     if (context.auth) {
-      return stripe.paymentMethods.list({
+      let paymentMethods = await stripe.paymentMethods.list({
         customer: context.auth.uid,
         type: "card",
       });
+      return paymentMethods.data;
     }
     return [];
   }
@@ -109,7 +110,8 @@ export const list_prices = functions.https.onCall(
     context: functions.https.CallableContext
   ) => {
     if (context.auth) {
-      return stripe.prices.list(data);
+      let prices = await stripe.prices.list(data);
+      return prices.data;
     }
     return {};
   }
@@ -141,7 +143,10 @@ export const get_subscription = functions.https.onCall(
 export const list_subscriptions = functions.https.onCall(
   async (_data: any, context: functions.https.CallableContext) => {
     if (context.auth) {
-      return await stripe.subscriptions.list({ customer: context.auth.uid });
+      let { data } = await stripe.subscriptions.list({
+        customer: context.auth.uid,
+      });
+      return data;
     }
     return {};
   }
