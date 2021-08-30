@@ -1,8 +1,8 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { StripeContext } from "../contexts/StripeContext";
-import StripePrice, { Product, Price } from "../components/StripeItem";
-import StripeCard, { Wallet } from "../components/StripeCard";
+import { StripePrice, StripeCard } from "../stripe-components";
+import { Product, Price, Wallet } from "../types/stripe";
 
 import {
   get_subscription,

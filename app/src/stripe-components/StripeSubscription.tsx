@@ -1,10 +1,10 @@
 import React from "react";
-import { Wrapper } from "./";
+import { Wrapper } from "../components";
 import { useHistory } from "react-router-dom";
 import { Subscription } from "../types/stripe";
 import { cancel_subscription } from "../lib/functions";
 
-const StripeSubscription = ({
+export default ({
   subscription,
 }: {
   subscription: Subscription;
@@ -32,5 +32,3 @@ const StripeSubscription = ({
     </Wrapper>
   );
 };
-
-export default StripeSubscription;

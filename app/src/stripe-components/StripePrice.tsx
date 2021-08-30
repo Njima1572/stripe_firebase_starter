@@ -1,8 +1,8 @@
 import React from "react";
-import { Wrapper } from "./";
+import { Wrapper } from "../components";
 import { Price } from "../types/stripe";
 
-const StripePrice = ({
+export default ({
   price,
   handleSubscribe,
   currentPrice,
@@ -33,5 +33,3 @@ const StripePrice = ({
     </Wrapper>
   );
 };
-
-export default StripePrice;

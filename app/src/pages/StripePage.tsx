@@ -1,10 +1,11 @@
 import React, { useState, useContext, useEffect } from "react";
 import { StripeContext, IStripeContext } from "../contexts/StripeContext";
-import StripePrice, { Product, Price } from "../components/StripeItem";
-import StripeSubscription, {
-  Subscription,
-} from "../components/StripeSubscription";
-import StripeCard, { Wallet } from "../components/StripeCard";
+import {
+  StripePrice,
+  StripeSubscription,
+  StripeCard,
+} from "../stripe-components";
+import { Wallet, Product, Price, Subscription } from "../types/stripe";
 import {
   list_payment_methods,
   start_subscription,

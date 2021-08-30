@@ -1,8 +1,8 @@
 import React from "react";
-import { Wrapper } from "./";
+import { Wrapper } from "../components";
 import { Wallet } from "../types/stripe";
 
-const StripeCard = ({
+export default ({
   paymentMethod,
   handleSelect,
   currentPaymentMethod = "",
@@ -28,4 +28,3 @@ const StripeCard = ({
   );
 };
 
-export default StripeCard;
