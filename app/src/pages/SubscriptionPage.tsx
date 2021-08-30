@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { StripeContext } from "../contexts/StripeContext";
+import { StripeContext, IStripeContext } from "../contexts/StripeContext";
 import { StripePrice, StripeCard } from "../stripe-components";
 import { Product, Price, Wallet } from "../types/stripe";
 
@@ -21,8 +21,18 @@ interface SubscriptionDetail {
   status: string;
   days_until_due: string;
   canceled_at: number;
+  plan: {
+    id: string;
+    interval: string;
+    interval_count: number;
+    product: string;
+  };
   items: {
-    data: { plan: { id: string }; price: { id: string; product: string } }[];
+    data: {
+      id: string;
+      plan: { id: string };
+      price: { id: string; product: string };
+    }[];
   };
 }
 
@@ -48,15 +58,10 @@ const Invoice = ({ invoice }: { invoice: Invoice }) => {
 };
 
 const SubscriptionPage = () => {
-  const { id } = useParams();
-  const { stripePrices } = useContext<{
-    stripePrices: Price[];
-    stripeProducts: Product[];
-  }>(StripeContext);
-  const [
-    selectedPaymentMethod,
-    setSelectedPaymentMethod,
-  ] = useState<Wallet | null>(null);
+  const { id } = useParams<{ id: string }>();
+  const { products } = useContext<IStripeContext>(StripeContext);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] =
+    useState<Wallet | null>(null);
 
   const [selectedPrice, setSelectedPrice] = useState<Price | null>(null);
   const [paymentMethods, setPaymentMethods] = useState<Wallet[]>([]);
@@ -68,12 +73,13 @@ const SubscriptionPage = () => {
   useEffect(() => {
     get_subscription(id).then(({ data }: any) => {
       setSubscription(data);
+      console.log(data);
       get_invoice(data.latest_invoice).then(({ data }) => {
         setInvoice(data);
       });
     });
-    list_payment_methods().then(({ data }: { data: { data: Wallet[] } }) => {
-      setPaymentMethods(data.data);
+    list_payment_methods().then(({ data }: { data: Wallet[] }) => {
+      setPaymentMethods(data);
     });
   }, []);
 
@@ -87,10 +93,12 @@ const SubscriptionPage = () => {
   };
 
   const handleChangePlan = () => {
-    if (selectedPrice) {
+    if (selectedPrice && subscription) {
       change_subscription_plan({
         subscription_id: id,
-        new_price_ids: [selectedPrice.id],
+        new_price_id: selectedPrice.id,
+      }).then((res) => {
+        console.log(res);
       });
     }
   };
@@ -104,22 +112,22 @@ const SubscriptionPage = () => {
           <div>{subscription.default_payment_method}</div>
           {
             <div>
-              {stripePrices.map((priceItem: Price) => {
-                console.log(subscription.items.data[0].price);
-                if (
-                  priceItem.product === subscription.items.data[0].price.product
-                )
-                  return (
-                    <StripePrice
-                      price={priceItem}
-                      handleSubscribe={() => setSelectedPrice(priceItem)}
-                      currentPrice={
-                        selectedPrice
-                          ? selectedPrice.id
-                          : subscription.items.data[0].price.id
-                      }
-                    />
-                  );
+              {products.map((product: Product) => {
+                if (product.id === subscription.plan.product) {
+                  return product.prices.map((priceItem: Price) => {
+                    return (
+                      <StripePrice
+                        price={priceItem}
+                        handleSubscribe={() => setSelectedPrice(priceItem)}
+                        currentPrice={
+                          selectedPrice
+                            ? selectedPrice.id
+                            : subscription.items.data[0].price.id
+                        }
+                      />
+                    );
+                  });
+                }
               })}
             </div>
           }

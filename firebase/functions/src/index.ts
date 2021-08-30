@@ -201,13 +201,33 @@ export const get_invoice = functions.https.onCall(
 
 export const change_subscription_plan = functions.https.onCall(
   async (
-    data: { subscription_id: string; new_price_items: any[] },
+    data: {
+      subscription_id: string;
+      new_price_id: string;
+    },
     context: functions.https.CallableContext
   ) => {
     if (context.auth) {
-      return await stripe.subscriptions.update(data.subscription_id, {
-        items: data.new_price_items,
-      });
+      console.log(data);
+      try {
+        let current_subscription = await stripe.subscriptions.retrieve(
+          data.subscription_id
+        );
+        let res = await stripe.subscriptions.update(data.subscription_id, {
+          items: [
+            {
+              id: current_subscription.items.data[0].id,
+              price: data.new_price_id,
+            },
+          ],
+          proration_behavior: "none",
+          trial_end: current_subscription.current_period_end,
+        });
+        console.log(res);
+        return res;
+      } catch (error) {
+        console.error(error);
+      }
     }
     return {};
   }
