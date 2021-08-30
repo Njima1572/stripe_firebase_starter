@@ -112,7 +112,7 @@ const SubscriptionPage = () => {
           <div>{subscription.default_payment_method}</div>
           {
             <div>
-              {products.map((product: Product) => {
+              {products?.map((product: Product) => {
                 if (product.id === subscription.plan.product) {
                   return product.prices.map((priceItem: Price) => {
                     return (
