@@ -1,5 +1,5 @@
 import React from "react";
-import { Wrapper } from "../components";
+import { Wrapper, Button } from "../components";
 import { Wallet } from "../types/stripe";
 
 export default ({
@@ -23,9 +23,9 @@ export default ({
         {paymentMethod.card.exp_month}/{paymentMethod.card.exp_year}
       </div>
       {!readonly && (
-        <button disabled={disabled} onClick={() => handleSelect(paymentMethod)}>
+        <Button disabled={disabled} onClick={() => handleSelect(paymentMethod)}>
           {text}
-        </button>
+        </Button>
       )}
     </Wrapper>
   );

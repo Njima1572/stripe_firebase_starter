@@ -48,3 +48,36 @@ export interface Subscription {
   latest_invoice: string;
   status: SubscriptionStatus;
 }
+
+export interface Invoice {
+  id: string;
+  account_name: string;
+  amount_paid: string;
+  amount_due: string;
+  invoice_pdf_url: string;
+  total: number;
+  status: string;
+}
+
+export interface SubscriptionDetail {
+  id: string;
+  default_payment_method: Wallet;
+  latest_invoice: Invoice;
+  collection_method: string;
+  status: string;
+  days_until_due: string;
+  canceled_at: number;
+  plan: {
+    id: string;
+    interval: string;
+    interval_count: number;
+    product: string;
+  };
+  items: {
+    data: {
+      id: string;
+      plan: { id: string };
+      price: { id: string; product: string };
+    }[];
+  };
+}

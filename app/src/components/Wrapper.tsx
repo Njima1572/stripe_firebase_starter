@@ -7,6 +7,8 @@ const Wrapper = styled.div`
   justify-content: space-around;
   align-items: center;
   border: 1px solid black;
+  border-radius: 8px;
+  background-color: #efefef;
 `;
 
 export default Wrapper;

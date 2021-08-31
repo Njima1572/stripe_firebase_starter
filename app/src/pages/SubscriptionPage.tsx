@@ -1,8 +1,8 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { StripeContext, IStripeContext } from "../contexts/StripeContext";
-import { StripePrice, StripeCard } from "../stripe-components";
-import { Product, Price, Wallet } from "../types/stripe";
+import { StripePrice, StripeCard, StripeInvoice } from "../stripe-components";
+import { Product, Price, Wallet, SubscriptionDetail } from "../types/stripe";
 
 import {
   get_subscription,
@@ -11,51 +11,6 @@ import {
   update_subscription_payment_source,
   change_subscription_plan,
 } from "../lib/functions";
-
-interface SubscriptionDetail {
-  id: string;
-  default_payment_method: Wallet;
-  latest_invoice: {};
-  collection_method: string;
-  status: string;
-  days_until_due: string;
-  canceled_at: number;
-  plan: {
-    id: string;
-    interval: string;
-    interval_count: number;
-    product: string;
-  };
-  items: {
-    data: {
-      id: string;
-      plan: { id: string };
-      price: { id: string; product: string };
-    }[];
-  };
-}
-
-interface Invoice {
-  id: string;
-  account_name: string;
-  amount_paid: string;
-  amount_due: string;
-  invoice_pdf_url: string;
-  total: number;
-  status: string;
-}
-
-const Invoice = ({ invoice }: { invoice: Invoice }) => {
-  return (
-    <div>
-      <div>{invoice.id}</div>
-      <div>{invoice.account_name}</div>
-      <div>{invoice.amount_paid}</div>
-      <div>{invoice.status}</div>
-    </div>
-  );
-};
-
 const SubscriptionPage = () => {
   const { id } = useParams<{ id: string }>();
   const { products } = useContext<IStripeContext>(StripeContext);
@@ -117,6 +72,7 @@ const SubscriptionPage = () => {
                   return product.prices.map((priceItem: Price) => {
                     return (
                       <StripePrice
+                        key={priceItem.id}
                         price={priceItem}
                         handleSubscribe={() => setSelectedPrice(priceItem)}
                         currentPrice={
@@ -135,6 +91,7 @@ const SubscriptionPage = () => {
             {paymentMethods.map((paymentMethod) => {
               return (
                 <StripeCard
+                  key={paymentMethod.id}
                   disabled={
                     paymentMethod.id ===
                     (selectedPaymentMethod
@@ -149,7 +106,7 @@ const SubscriptionPage = () => {
           </div>
           {invoice && (
             <div>
-              <Invoice invoice={invoice} />
+              <StripeInvoice invoice={invoice} />
             </div>
           )}
           <div>

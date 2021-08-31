@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import { StripeContext, IStripeContext } from "../contexts/StripeContext";
+import { Button } from "../components";
 import {
   StripePrice,
   StripeSubscription,
@@ -16,10 +17,8 @@ import {
 const StripePage = () => {
   const { products } = useContext<IStripeContext>(StripeContext);
   const [paymentMethods, setPaymentMethods] = useState<Wallet[]>([]);
-  const [
-    selectedPaymentMethod,
-    setSelectedPaymentMethod,
-  ] = useState<Wallet | null>(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] =
+    useState<Wallet | null>(null);
 
   const [currentSubscriptions, setCurrentSubscriptions] = useState<
     Subscription[]
@@ -76,7 +75,8 @@ const StripePage = () => {
       {currentSubscriptions.map((subscription) => {
         return <StripeSubscription subscription={subscription} />;
       })}
-      <button
+      <Button
+        backgroundColor="red"
         onClick={() =>
           create_billing_portal().then(({ data }) => {
             window.location.assign(data.url);
@@ -84,7 +84,7 @@ const StripePage = () => {
         }
       >
         Create Billing Portal
-      </button>
+      </Button>
     </>
   );
 };

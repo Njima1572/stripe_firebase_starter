@@ -1,14 +1,10 @@
 import React from "react";
-import { Wrapper } from "../components";
+import { Wrapper, Button } from "../components";
 import { useHistory } from "react-router-dom";
 import { Subscription } from "../types/stripe";
 import { cancel_subscription } from "../lib/functions";
 
-export default ({
-  subscription,
-}: {
-  subscription: Subscription;
-}) => {
+export default ({ subscription }: { subscription: Subscription }) => {
   const history = useHistory();
   const handleCancelSubscription = () => {
     cancel_subscription(subscription.id);
@@ -25,10 +21,12 @@ export default ({
         {new Date(subscription.current_period_end * 1000).toLocaleString()}
       </div>
       <div>{subscription.status}</div>
-      <button onClick={() => history.push(`/subscriptions/${subscription.id}`)}>
+      <Button onClick={() => history.push(`/subscriptions/${subscription.id}`)}>
         Detail
-      </button>
-      <button onClick={() => handleCancelSubscription()}>Cancel</button>
+      </Button>
+      <Button backgroundColor="red" onClick={() => handleCancelSubscription()}>
+        Cancel
+      </Button>
     </Wrapper>
   );
 };

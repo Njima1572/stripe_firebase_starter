@@ -1,5 +1,5 @@
 import React from "react";
-import { Wrapper } from "../components";
+import { Wrapper, Button } from "../components";
 import { Price } from "../types/stripe";
 
 export default ({
@@ -24,12 +24,12 @@ export default ({
           : ""}
         {price.recurring.interval}
       </div>
-      <button
+      <Button
         disabled={!!(currentPrice && currentPrice === price.id)}
         onClick={() => handleSubscribe()}
       >
         Subscribe
-      </button>
+      </Button>
     </Wrapper>
   );
 };
