@@ -76,12 +76,19 @@ export const get_user_data = functions.https.onCall(
   async (_data, context: functions.https.CallableContext) => {
     // First create customer with Stripe
     if (context.auth) {
-      const customer = await stripe.customers.retrieve(context.auth.uid, {
-        expand: ["subscriptions"],
-      });
-      return customer;
+      try {
+        const customer = await stripe.customers.retrieve(context.auth.uid, {
+          expand: ["subscriptions"],
+        });
+        return customer;
+      } catch (e) {
+        throw new functions.https.HttpsError("aborted", e.message);
+      }
     }
-    return {};
+    throw new functions.https.HttpsError(
+      "unauthenticated",
+      "You need to be logged in to perform this action"
+    );
   }
 );
 
@@ -92,24 +99,38 @@ export const attach_payment_method = functions.https.onCall(
     context: functions.https.CallableContext
   ) => {
     if (context.auth) {
-      return stripe.paymentMethods.attach(data.payment_method_id, {
-        customer: context.auth.uid,
-      });
+      try {
+        return stripe.paymentMethods.attach(data.payment_method_id, {
+          customer: context.auth.uid,
+        });
+      } catch (e) {
+        throw new functions.https.HttpsError("aborted", e.message);
+      }
     }
-    return {};
+    throw new functions.https.HttpsError(
+      "unauthenticated",
+      "You need to be logged in to perform this action"
+    );
   }
 );
 
 export const list_payment_methods = functions.https.onCall(
   async (_data, context: functions.https.CallableContext) => {
     if (context.auth) {
-      let paymentMethods = await stripe.paymentMethods.list({
-        customer: context.auth.uid,
-        type: "card",
-      });
-      return paymentMethods.data;
+      try {
+        let paymentMethods = await stripe.paymentMethods.list({
+          customer: context.auth.uid,
+          type: "card",
+        });
+        return paymentMethods.data;
+      } catch (e) {
+        throw new functions.https.HttpsError("aborted", e.message);
+      }
     }
-    return [];
+    throw new functions.https.HttpsError(
+      "unauthenticated",
+      "You need to be logged in to perform this action"
+    );
   }
 );
 
@@ -119,13 +140,20 @@ export const set_default_payment_method = functions.https.onCall(
     context: functions.https.CallableContext
   ) => {
     if (context.auth) {
-      return stripe.customers.update(context.auth.uid, {
-        invoice_settings: {
-          default_payment_method: data.payment_method_id,
-        },
-      });
+      try {
+        return stripe.customers.update(context.auth.uid, {
+          invoice_settings: {
+            default_payment_method: data.payment_method_id,
+          },
+        });
+      } catch (e) {
+        throw new functions.https.HttpsError("aborted", e.message);
+      }
     }
-    return {};
+    throw new functions.https.HttpsError(
+      "unauthenticated",
+      "You need to be logged in to perform this action"
+    );
   }
 );
 // ========= Payment Methods End ========
@@ -135,9 +163,16 @@ export const get_price = functions.https.onCall(
   async (price_id: string, context: functions.https.CallableContext) => {
     // First create customer with Stripe
     if (context.auth) {
-      return await stripe.prices.retrieve(price_id);
+      try {
+        return await stripe.prices.retrieve(price_id);
+      } catch (e) {
+        throw new functions.https.HttpsError("aborted", e.message);
+      }
     }
-    return {};
+    throw new functions.https.HttpsError(
+      "unauthenticated",
+      "You need to be logged in to perform this action"
+    );
   }
 );
 
@@ -147,10 +182,17 @@ export const list_prices = functions.https.onCall(
     context: functions.https.CallableContext
   ) => {
     if (context.auth) {
-      let prices = await stripe.prices.list(data);
-      return prices.data;
+      try {
+        let prices = await stripe.prices.list(data);
+        return prices.data;
+      } catch (e) {
+        throw new functions.https.HttpsError("aborted", e.message);
+      }
     }
-    return {};
+    throw new functions.https.HttpsError(
+      "unauthenticated",
+      "You need to be logged in to perform this action"
+    );
   }
 );
 
@@ -158,11 +200,18 @@ export const get_product = functions.https.onCall(
   async (product_id: string, context: functions.https.CallableContext) => {
     // First create customer with Stripe
     if (context.auth) {
-      let { data } = await stripe.prices.list({ product: product_id });
-      let product = await stripe.products.retrieve(product_id);
-      return { ...product, prices: data };
+      try {
+        let { data } = await stripe.prices.list({ product: product_id });
+        let product = await stripe.products.retrieve(product_id);
+        return { ...product, prices: data };
+      } catch (e) {
+        throw new functions.https.HttpsError("aborted", e.message);
+      }
     }
-    return {};
+    throw new functions.https.HttpsError(
+      "unauthenticated",
+      "You need to be logged in to perform this action"
+    );
   }
 );
 // ========= Products End  ==========
@@ -171,23 +220,37 @@ export const get_product = functions.https.onCall(
 export const get_subscription = functions.https.onCall(
   async (subscription_id: string, context: functions.https.CallableContext) => {
     if (context.auth) {
-      return await stripe.subscriptions.retrieve(subscription_id, {
-        expand: ["default_payment_method", "latest_invoice", "plan.product"],
-      });
+      try {
+        return await stripe.subscriptions.retrieve(subscription_id, {
+          expand: ["default_payment_method", "latest_invoice", "plan.product"],
+        });
+      } catch (e) {
+        throw new functions.https.HttpsError("aborted", e.message);
+      }
     }
-    return {};
+    throw new functions.https.HttpsError(
+      "unauthenticated",
+      "You need to be logged in to perform this action"
+    );
   }
 );
 
 export const list_subscriptions = functions.https.onCall(
   async (_data: any, context: functions.https.CallableContext) => {
     if (context.auth) {
-      let { data } = await stripe.subscriptions.list({
-        customer: context.auth.uid,
-      });
-      return data;
+      try {
+        let { data } = await stripe.subscriptions.list({
+          customer: context.auth.uid,
+        });
+        return data;
+      } catch (e) {
+        throw new functions.https.HttpsError("aborted", e.message);
+      }
     }
-    return {};
+    throw new functions.https.HttpsError(
+      "unauthenticated",
+      "You need to be logged in to perform this action"
+    );
   }
 );
 export const start_subscription = functions.https.onCall(
@@ -196,23 +259,37 @@ export const start_subscription = functions.https.onCall(
     context: functions.https.CallableContext
   ) => {
     if (context.auth) {
-      return await stripe.subscriptions.create({
-        customer: context.auth.uid,
-        items: [{ price: data.price_id }],
-        default_payment_method: data.payment_method_id,
-        payment_behavior: "default_incomplete",
-      });
+      try {
+        return await stripe.subscriptions.create({
+          customer: context.auth.uid,
+          items: [{ price: data.price_id }],
+          default_payment_method: data.payment_method_id,
+          payment_behavior: "default_incomplete",
+        });
+      } catch (e) {
+        throw new functions.https.HttpsError("aborted", e.message);
+      }
     }
-    return {};
+    throw new functions.https.HttpsError(
+      "unauthenticated",
+      "You need to be logged in to perform this action"
+    );
   }
 );
 
 export const cancel_subscription = functions.https.onCall(
   async (subscription_id: string, context: functions.https.CallableContext) => {
     if (context.auth) {
-      return await stripe.subscriptions.del(subscription_id);
+      try {
+        return await stripe.subscriptions.del(subscription_id);
+      } catch (e) {
+        throw new functions.https.HttpsError("aborted", e.message);
+      }
     }
-    return {};
+    throw new functions.https.HttpsError(
+      "unauthenticated",
+      "You need to be logged in to perform this action"
+    );
   }
 );
 
@@ -222,20 +299,34 @@ export const update_subscription_payment_source = functions.https.onCall(
     context: functions.https.CallableContext
   ) => {
     if (context.auth) {
-      return await stripe.subscriptions.update(data.subscription_id, {
-        default_payment_method: data.payment_method_id,
-      });
+      try {
+        return await stripe.subscriptions.update(data.subscription_id, {
+          default_payment_method: data.payment_method_id,
+        });
+      } catch (e) {
+        throw new functions.https.HttpsError("aborted", e.message);
+      }
     }
-    return {};
+    throw new functions.https.HttpsError(
+      "unauthenticated",
+      "You need to be logged in to perform this action"
+    );
   }
 );
 
 export const get_invoice = functions.https.onCall(
   async (invoice_id: string, context: functions.https.CallableContext) => {
     if (context.auth) {
-      return await stripe.invoices.retrieve(invoice_id);
+      try {
+        return await stripe.invoices.retrieve(invoice_id);
+      } catch (e) {
+        throw new functions.https.HttpsError("aborted", e.message);
+      }
     }
-    return {};
+    throw new functions.https.HttpsError(
+      "unauthenticated",
+      "You need to be logged in to perform this action"
+    );
   }
 );
 
@@ -243,14 +334,21 @@ export const pay_invoice = functions.https.onCall(
   async (invoice_id: string, context: functions.https.CallableContext) => {
     if (context.auth) {
       const invoice = await stripe.invoices.retrieve(invoice_id);
-      if (invoice.status === "draft") {
-        await stripe.invoices.finalizeInvoice(invoice_id);
-        return await stripe.invoices.pay(invoice_id);
-      } else if (invoice.status === "open") {
-        return await stripe.invoices.pay(invoice_id);
+      try {
+        if (invoice.status === "draft") {
+          await stripe.invoices.finalizeInvoice(invoice_id);
+          return await stripe.invoices.pay(invoice_id);
+        } else if (invoice.status === "open") {
+          return await stripe.invoices.pay(invoice_id);
+        }
+      } catch (e) {
+        throw new functions.https.HttpsError("aborted", e.message);
       }
     }
-    return {};
+    throw new functions.https.HttpsError(
+      "unauthenticated",
+      "You need to be logged in to perform this action"
+    );
   }
 );
 
@@ -260,9 +358,16 @@ export const get_payment_intent = functions.https.onCall(
     context: functions.https.CallableContext
   ) => {
     if (context.auth) {
-      return await stripe.paymentIntents.retrieve(payment_intent_id);
+      try {
+        return await stripe.paymentIntents.retrieve(payment_intent_id);
+      } catch (e) {
+        throw new functions.https.HttpsError("aborted", e.message);
+      }
     }
-    return {};
+    throw new functions.https.HttpsError(
+      "unauthenticated",
+      "You need to be logged in to perform this action"
+    );
   }
 );
 
@@ -292,11 +397,15 @@ export const change_subscription_plan = functions.https.onCall(
         });
         console.log(res);
         return res;
-      } catch (error) {
-        console.error(error);
+      } catch (e) {
+        console.error(e);
+        throw new functions.https.HttpsError("aborted", e.message);
       }
     }
-    return {};
+    throw new functions.https.HttpsError(
+      "unauthenticated",
+      "You need to be logged in to perform this action"
+    );
   }
 );
 
@@ -310,7 +419,10 @@ export const create_billing_portal = functions.https.onCall(
         return_url: "http://localhost:3200",
       });
     }
-    return {};
+    throw new functions.https.HttpsError(
+      "unauthenticated",
+      "You need to be logged in to perform this action"
+    );
   }
 );
 
