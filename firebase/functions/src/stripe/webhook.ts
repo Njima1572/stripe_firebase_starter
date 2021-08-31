@@ -30,7 +30,7 @@ const handleWebhook = async (
   switch (req.body.type) {
     case "customer.subscription.created": {
       console.log("Subscription Created");
-      if (target_object.plan.product === "prod_K7nlSGewqmziW0") {
+      if (target_object.plan.product in functions.config().stripe.products) {
         try {
           console.log(target_object);
           batch.update(account_ref, {
