@@ -5,11 +5,15 @@ import { Wallet } from "../types/stripe";
 export default ({
   paymentMethod,
   handleSelect,
-  currentPaymentMethod = "",
+  disabled,
+  readonly,
+  text = "Select",
 }: {
   paymentMethod: Wallet;
-  handleSelect: (arg0: Wallet) => void;
-  currentPaymentMethod?: string;
+  handleSelect?: (arg0: Wallet) => void;
+  disabled?: boolean;
+  readonly?: boolean;
+  text?: string;
 }) => {
   return (
     <Wrapper>
@@ -18,13 +22,11 @@ export default ({
       <div>
         {paymentMethod.card.exp_month}/{paymentMethod.card.exp_year}
       </div>
-      <button
-        disabled={currentPaymentMethod === paymentMethod.id}
-        onClick={() => handleSelect(paymentMethod)}
-      >
-        Select
-      </button>
+      {!readonly && (
+        <button disabled={disabled} onClick={() => handleSelect(paymentMethod)}>
+          {text}
+        </button>
+      )}
     </Wrapper>
   );
 };
-

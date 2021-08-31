@@ -6,7 +6,6 @@ import { Product, Price, Wallet } from "../types/stripe";
 
 import {
   get_subscription,
-  get_invoice,
   list_payment_methods,
   cancel_subscription,
   update_subscription_payment_source,
@@ -15,8 +14,8 @@ import {
 
 interface SubscriptionDetail {
   id: string;
-  default_payment_method: string;
-  latest_invoice: string;
+  default_payment_method: Wallet;
+  latest_invoice: {};
   collection_method: string;
   status: string;
   days_until_due: string;
@@ -73,10 +72,8 @@ const SubscriptionPage = () => {
   useEffect(() => {
     get_subscription(id).then(({ data }: any) => {
       setSubscription(data);
-      console.log(data);
-      get_invoice(data.latest_invoice).then(({ data }) => {
-        setInvoice(data);
-      });
+      setInvoice(data.latest_invoice);
+      console.log(data.default_payment_method);
     });
     list_payment_methods().then(({ data }: { data: Wallet[] }) => {
       setPaymentMethods(data);
@@ -109,7 +106,10 @@ const SubscriptionPage = () => {
       {subscription && (
         <div>
           <div>{subscription.id}</div>
-          <div>{subscription.default_payment_method}</div>
+          <StripeCard
+            readonly
+            paymentMethod={subscription.default_payment_method}
+          />
           {
             <div>
               {products?.map((product: Product) => {
@@ -135,10 +135,11 @@ const SubscriptionPage = () => {
             {paymentMethods.map((paymentMethod) => {
               return (
                 <StripeCard
-                  currentPaymentMethod={
-                    selectedPaymentMethod
+                  disabled={
+                    paymentMethod.id ===
+                    (selectedPaymentMethod
                       ? selectedPaymentMethod?.id
-                      : subscription.default_payment_method
+                      : subscription.default_payment_method.id)
                   }
                   paymentMethod={paymentMethod}
                   handleSelect={setSelectedPaymentMethod}
@@ -156,7 +157,7 @@ const SubscriptionPage = () => {
               disabled={
                 !(
                   selectedPaymentMethod &&
-                  subscription.default_payment_method !==
+                  subscription.default_payment_method.id !==
                     selectedPaymentMethod.id
                 )
               }

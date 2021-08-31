@@ -3,9 +3,10 @@ import * as functions from "firebase-functions";
 import Stripe from "stripe";
 import stripe from "./stripe/config";
 firebaseAdmin.initializeApp();
+import handleWebhook from "./stripe/webhook";
 
 const auth = firebaseAdmin.auth();
-// const db = firebaseAdmin.firestore();
+const db = firebaseAdmin.firestore();
 
 export const test = functions.https.onCall((_data, _context) => {
   functions.logger.info("Hello logs!", { structuredData: true });
@@ -31,17 +32,53 @@ export const signup = functions.https.onCall(
       emailVerified: true,
     });
 
-    // Create an entry in database here
-
     return new_user;
   }
 );
+
+export const on_create_user = functions
+  .region("asia-northeast1")
+  .auth.user()
+  .onCreate(async (user: firebaseAdmin.auth.UserRecord) => {
+    // Create a database entry here with empty data
+    const batch = db.batch();
+    const account_ref = db.collection("accounts").doc(user.uid);
+    batch.set(account_ref, {
+      id: user.uid,
+      email: user.email,
+      subscription_id: "",
+      tier: 0,
+      valid_until: 0,
+      status: "UNSUBSCRIBED",
+    });
+    await batch.commit();
+    return true;
+  });
+
+export const on_delete_user = functions
+  .region("asia-northeast1")
+  .auth.user()
+  .onDelete(async (user: firebaseAdmin.auth.UserRecord) => {
+    const batch = db.batch();
+    const account_ref = db.collection("accounts").doc(user.uid);
+    let account_data = await account_ref.get();
+    let subscription_id: string = account_data.data()?.subscription_id || "";
+    if (subscription_id !== "") {
+      stripe.subscriptions.del(subscription_id);
+    }
+    batch.delete(account_ref);
+    await batch.commit();
+    return true;
+  });
+
 // context.auth.uid is stripe customer_id, no params needed
 export const get_user_data = functions.https.onCall(
   async (_data, context: functions.https.CallableContext) => {
     // First create customer with Stripe
     if (context.auth) {
-      const customer = await stripe.customers.retrieve(context.auth.uid);
+      const customer = await stripe.customers.retrieve(context.auth.uid, {
+        expand: ["subscriptions"],
+      });
       return customer;
     }
     return {};
@@ -134,7 +171,9 @@ export const get_product = functions.https.onCall(
 export const get_subscription = functions.https.onCall(
   async (subscription_id: string, context: functions.https.CallableContext) => {
     if (context.auth) {
-      return await stripe.subscriptions.retrieve(subscription_id);
+      return await stripe.subscriptions.retrieve(subscription_id, {
+        expand: ["default_payment_method", "latest_invoice"],
+      });
     }
     return {};
   }
@@ -161,6 +200,7 @@ export const start_subscription = functions.https.onCall(
         customer: context.auth.uid,
         items: [{ price: data.price_id }],
         default_payment_method: data.payment_method_id,
+        payment_behavior: "default_incomplete",
       });
     }
     return {};
@@ -194,6 +234,18 @@ export const get_invoice = functions.https.onCall(
   async (invoice_id: string, context: functions.https.CallableContext) => {
     if (context.auth) {
       return await stripe.invoices.retrieve(invoice_id);
+    }
+    return {};
+  }
+);
+
+export const get_payment_intent = functions.https.onCall(
+  async (
+    payment_intent_id: string,
+    context: functions.https.CallableContext
+  ) => {
+    if (context.auth) {
+      return await stripe.paymentIntents.retrieve(payment_intent_id);
     }
     return {};
   }
@@ -244,5 +296,13 @@ export const create_billing_portal = functions.https.onCall(
       });
     }
     return {};
+  }
+);
+
+export const webhook = functions.https.onRequest(
+  (req: functions.https.Request, res: functions.Response) => {
+    console.log("Got Request");
+    console.log(req.body.type);
+    handleWebhook(req, res);
   }
 );
