@@ -41,6 +41,27 @@ STRIPE_PK_DEV=Stripe Publishable Key for development environment
 STRIPE_SK_DEV=Stripe Secret Key for development environment
 ```
 
+## Firebase Config
+To set the config
+
+Set configs like 
+`firebase functions:config:set stripe.sk="sk_...."`
+
+Then run
+`firebase deploy --only functions`
+
+To generate config for emulators
+`firebase functions:config:get > firebase/functions/.runtimeconfig.json`
+
+It should be something like this after setting all the variables
+```
+"stripe": {
+  "sk": "sk_.....", // STRIPE_SK_DEV,
+  "products": PRODUCT_IDS, // PRODUCT_IDS to apply subscription model
+  "endpoint_secret": "whsec_....." 
+}
+```
+
 
 ## Database Models
 
