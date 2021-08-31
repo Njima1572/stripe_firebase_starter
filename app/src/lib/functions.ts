@@ -8,6 +8,7 @@ export const get_product = functions<any, any>("get_product");
 export const get_user_data = functions<any, any>("get_user_data");
 export const get_subscription = functions<any, any>("get_subscription");
 export const get_invoice = functions<any, any>("get_invoice");
+export const pay_invoice = functions<any, any>("pay_invoice");
 export const attach_payment_method = functions<any, any>(
   "attach_payment_method"
 );

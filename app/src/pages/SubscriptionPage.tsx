@@ -1,8 +1,14 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { Button } from "../components";
 import { StripeContext, IStripeContext } from "../contexts/StripeContext";
-import { StripePrice, StripeCard, StripeInvoice } from "../stripe-components";
-import { Product, Price, Wallet, SubscriptionDetail } from "../types/stripe";
+import {
+  StripeSubscription,
+  StripePrice,
+  StripeCard,
+  StripeInvoice,
+} from "../stripe-components";
+import { Product, Price, Wallet, Subscription } from "../types/stripe";
 
 import {
   get_subscription,
@@ -19,16 +25,13 @@ const SubscriptionPage = () => {
 
   const [selectedPrice, setSelectedPrice] = useState<Price | null>(null);
   const [paymentMethods, setPaymentMethods] = useState<Wallet[]>([]);
-  const [subscription, setSubscription] = useState<SubscriptionDetail | null>(
-    null
-  );
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [invoice, setInvoice] = useState<any>(null);
 
   useEffect(() => {
     get_subscription(id).then(({ data }: any) => {
       setSubscription(data);
       setInvoice(data.latest_invoice);
-      console.log(data.default_payment_method);
     });
     list_payment_methods().then(({ data }: { data: Wallet[] }) => {
       setPaymentMethods(data);
@@ -61,33 +64,41 @@ const SubscriptionPage = () => {
       {subscription && (
         <div>
           <div>{subscription.id}</div>
+          <div>Current Payment Method</div>
+          <div style={{ border: "1px solid black", borderRadius: 10 }}>
+            <StripeSubscription
+              subscription={subscription}
+              orientation="column"
+            />
+          </div>
           <StripeCard
             readonly
             paymentMethod={subscription.default_payment_method}
           />
-          {
-            <div>
-              {products?.map((product: Product) => {
-                if (product.id === subscription.plan.product) {
-                  return product.prices.map((priceItem: Price) => {
-                    return (
-                      <StripePrice
-                        key={priceItem.id}
-                        price={priceItem}
-                        handleSubscribe={() => setSelectedPrice(priceItem)}
-                        currentPrice={
-                          selectedPrice
-                            ? selectedPrice.id
-                            : subscription.items.data[0].price.id
-                        }
-                      />
-                    );
-                  });
-                }
-              })}
-            </div>
-          }
           <div>
+            Other Payment Plans
+            {products?.map((product: Product) => {
+              if (product.id === subscription.plan.product.id) {
+                return product.prices.map((priceItem: Price) => {
+                  return (
+                    <StripePrice
+                      key={priceItem.id}
+                      price={priceItem}
+                      handleSubscribe={() => setSelectedPrice(priceItem)}
+                      text={"Change Plan"}
+                      currentPrice={
+                        selectedPrice
+                          ? selectedPrice.id
+                          : subscription.items.data[0].price.id
+                      }
+                    />
+                  );
+                });
+              }
+            })}
+          </div>
+          <div>
+            Payment Methods
             {paymentMethods.map((paymentMethod) => {
               return (
                 <StripeCard
@@ -106,11 +117,12 @@ const SubscriptionPage = () => {
           </div>
           {invoice && (
             <div>
+              Invoice
               <StripeInvoice invoice={invoice} />
             </div>
           )}
           <div>
-            <button
+            <Button
               disabled={
                 !(
                   selectedPaymentMethod &&
@@ -121,19 +133,16 @@ const SubscriptionPage = () => {
               onClick={() => handleUpdatePaymentSource()}
             >
               Update Payment Method
-            </button>
-            <button
+            </Button>
+            <Button
               disabled={
-                !(
-                  selectedPrice &&
-                  subscription.items.data[0].price.id !== selectedPrice.id
-                )
+                !(selectedPrice && subscription.plan.id !== selectedPrice.id)
               }
               onClick={() => handleChangePlan()}
             >
               Update Plan
-            </button>
-            <button onClick={() => cancel_subscription(id)}>Cancel</button>
+            </Button>
+            <Button onClick={() => cancel_subscription(id)}>Cancel</Button>
           </div>
         </div>
       )}

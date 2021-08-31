@@ -172,7 +172,7 @@ export const get_subscription = functions.https.onCall(
   async (subscription_id: string, context: functions.https.CallableContext) => {
     if (context.auth) {
       return await stripe.subscriptions.retrieve(subscription_id, {
-        expand: ["default_payment_method", "latest_invoice"],
+        expand: ["default_payment_method", "latest_invoice", "plan.product"],
       });
     }
     return {};
@@ -234,6 +234,21 @@ export const get_invoice = functions.https.onCall(
   async (invoice_id: string, context: functions.https.CallableContext) => {
     if (context.auth) {
       return await stripe.invoices.retrieve(invoice_id);
+    }
+    return {};
+  }
+);
+
+export const pay_invoice = functions.https.onCall(
+  async (invoice_id: string, context: functions.https.CallableContext) => {
+    if (context.auth) {
+      const invoice = await stripe.invoices.retrieve(invoice_id);
+      if (invoice.status === "draft") {
+        await stripe.invoices.finalizeInvoice(invoice_id);
+        return await stripe.invoices.pay(invoice_id);
+      } else if (invoice.status === "open") {
+        return await stripe.invoices.pay(invoice_id);
+      }
     }
     return {};
   }

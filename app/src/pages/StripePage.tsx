@@ -72,10 +72,12 @@ const StripePage = () => {
             </div>
           );
         })}
+      Current Subscriptions
       {currentSubscriptions.map((subscription) => {
-        return <StripeSubscription subscription={subscription} />;
+        return <StripeSubscription subscription={subscription} preview />;
       })}
       <Button
+        disabled
         backgroundColor="red"
         onClick={() =>
           create_billing_portal().then(({ data }) => {

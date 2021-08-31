@@ -24,12 +24,21 @@ export interface Price {
   currency: string;
   unit_amount: number;
   recurring: {
-    interval: "month" | "year";
+    interval: "month" | "year" | "day" | "week";
     interval_count: number;
   };
 }
 
-enum SubscriptionStatus {
+export interface Plan {
+  id: string;
+  interval: string;
+  interval_count: number;
+  currency: string;
+  amount: number;
+  product: Product | string;
+}
+
+export enum SubscriptionStatus {
   active = "active",
   incomplete = "incomplete",
   incomplete_expired = "incomplete_expired",
@@ -41,12 +50,22 @@ enum SubscriptionStatus {
 
 export interface Subscription {
   id: string;
-  plan: Price;
   current_period_end: number;
   current_period_start: number;
-  default_payment_method: string;
-  latest_invoice: string;
   status: SubscriptionStatus;
+  default_payment_method: Wallet;
+  latest_invoice: Invoice;
+  collection_method: string;
+  days_until_due: string;
+  canceled_at: number;
+  plan: Plan;
+  items: { data: SubscriptionItem[] };
+}
+
+export interface SubscriptionItem {
+  id: string;
+  plan: Plan;
+  price: Price;
 }
 
 export interface Invoice {
@@ -57,27 +76,4 @@ export interface Invoice {
   invoice_pdf_url: string;
   total: number;
   status: string;
-}
-
-export interface SubscriptionDetail {
-  id: string;
-  default_payment_method: Wallet;
-  latest_invoice: Invoice;
-  collection_method: string;
-  status: string;
-  days_until_due: string;
-  canceled_at: number;
-  plan: {
-    id: string;
-    interval: string;
-    interval_count: number;
-    product: string;
-  };
-  items: {
-    data: {
-      id: string;
-      plan: { id: string };
-      price: { id: string; product: string };
-    }[];
-  };
 }

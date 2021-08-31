@@ -6,10 +6,12 @@ export default ({
   price,
   handleSubscribe,
   currentPrice,
+  text = "Subscribe",
 }: {
   price: Price;
   handleSubscribe: () => void;
   currentPrice?: string;
+  text?: string;
 }) => {
   return (
     <Wrapper>
@@ -28,7 +30,7 @@ export default ({
         disabled={!!(currentPrice && currentPrice === price.id)}
         onClick={() => handleSubscribe()}
       >
-        Subscribe
+        {text}
       </Button>
     </Wrapper>
   );

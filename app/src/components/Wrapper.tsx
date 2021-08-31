@@ -1,9 +1,11 @@
 import styled from "styled-components";
-const Wrapper = styled.div`
+const Wrapper = styled.div.attrs((props: { orientation: string }) => ({
+  ...props,
+}))`
   width: 100%;
-  height: 100px;
+  min-height: 100px;
   display: flex;
-  flex-direction: row;
+  flex-direction: ${({ orientation }) => orientation};
   justify-content: space-around;
   align-items: center;
   border: 1px solid black;
